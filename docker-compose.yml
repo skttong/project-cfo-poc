@@ -9,24 +9,29 @@ services:
       POSTGRES_PASSWORD: cfo123
       POSTGRES_DB: cfo_poc
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
 
   api:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     container_name: cfo-api
     environment:
       DATABASE_URL: postgres://cfo:cfo123@db:5432/cfo_poc
     depends_on:
       - db
     ports:
-      - '3000:3000'
+      - "3000:3000"
     volumes:
-      - .:/app
-    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+      - ./src:/app/src         # bind mount โค้ดสำหรับ live reload
+      - ./prisma:/app/prisma   # bind mount Prisma schema
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+    command: sh -c "npx prisma db push && npx ts-node -r tsconfig-paths/register src/main.ts"
+    stdin_open: true
+    tty: true
 
 volumes:
   db-data:

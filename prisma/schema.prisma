@@ -1,0 +1,25 @@
+datasource db {
+provider = "postgresql"
+url = env("DATABASE_URL")
+}
+
+
+generator client {
+provider = "prisma-client-js"
+}
+
+
+model ImportBatch {
+id String @id @default(uuid())
+filename String
+status String
+createdAt DateTime @default(now())
+}
+
+
+model Report {
+id String @id @default(uuid())
+batchId String
+content String
+createdAt DateTime @default(now())
+}
