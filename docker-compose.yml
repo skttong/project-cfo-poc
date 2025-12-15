@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: cfo-postgres
+    environment:
+      POSTGRES_USER: cfo
+      POSTGRES_PASSWORD: cfo123
+      POSTGRES_DB: cfo_poc
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: cfo-api
+    environment:
+      DATABASE_URL: postgres://cfo:cfo123@db:5432/cfo_poc
+    depends_on:
+      - db
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+    command: sh -c "npx prisma migrate deploy && node dist/main.js"
+
+volumes:
+  db-data:
